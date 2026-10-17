@@ -1,0 +1,30 @@
+﻿============================================================
+CPF ??? cobertura por sistema
+============================================================
+legado: clientes=9450 | com CPF=8550 (90.48%) | CPFs distintos=8271 | com d??gito verificador v??lido=7748 (90.62%)
+ecommerce: clientes=17000 | com CPF=15659 (92.11%) | CPFs distintos=15659 | com d??gito verificador v??lido=14214 (90.77%)
+
+============================================================
+CPF ??? interse????o entre os sistemas
+============================================================
+CPFs distintos no legado:    8271
+CPFs distintos no ecommerce: 15659
+CPFs nos dois sistemas:      2516
+  = 30.42% dos CPFs do legado
+  = 16.07% dos CPFs do ecommerce
+Na interse????o, CPFs com d??gito verificador inv??lido: 232 (9.22%)
+
+============================================================
+Duplicidade de CPF dentro de cada sistema
+============================================================
+legado: CPFs que aparecem em mais de 1 cliente = 279 (linhas envolvidas: 558)
+ecommerce: CPFs que aparecem em mais de 1 cliente = 0 (linhas envolvidas: 0)
+
+============================================================
+Outras chaves candidatas (interse????o)
+============================================================
+e-mail em comum: 0
+telefone (s?? d??gitos) em comum: 0
+telefone em comum (e-commerce sem prefixo 55): 1
+
+Pronto. Guarde esta sa??da: ela alimenta a se????o a) do relat??rio.

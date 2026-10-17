@@ -1,0 +1,7 @@
+dados/*
+!dados/.gitkeep
+saida/*
+!saida/.gitkeep
+.env
+__pycache__/
+*.pyc

@@ -1,0 +1,234 @@
+﻿
+========================================================================
+FONTE 1 ÔÇö MySQL ┬À loja_legado
+========================================================================
+
+--- legado.CLIENTES (9450 linhas) ---
+             linhas  nulos  %_nulos  vazios  distintos  min     max   media  negativos    tipo                                                                                 mais_frequentes  tam_min  tam_max
+coluna                                                                                                                                                                                                          
+ID_CLIENTE     9450      0      0.0       0       9450  1.0  9450.0  4725.5        0.0   int64                                                                                             NaN      NaN      NaN
+NOME           9450      0      0.0       0       9022  NaN     NaN     NaN        NaN  object              NAT├üLIA OLIVEIRA FONSECA (3); JOS├ë FREITAS SOARES (3); S├ëRGIO DUARTE FERNANDES (3)     14.0     31.0
+CPF            9450      0      0.0     900       8371  NaN     NaN     NaN        NaN  object                                                   (900); 520.467.196-03 (2); 218.987.234-00 (2)      0.0     14.0
+EMAIL          9450      0      0.0       0       9000  NaN     NaN     NaN        NaN  object  paulo3697@exemplo.com.br (2); cristiane7061@exemplo.com.br (2); luciana5986@exemplo.com.br (2)     20.0     29.0
+DT_CADASTRO    9450      0      0.0       0       1095  NaN     NaN     NaN        NaN  object                                               2025-02-20 (20); 2024-09-05 (20); 2025-05-30 (18)     10.0     10.0
+CIDADE         9450      0      0.0       0         24  NaN     NaN     NaN        NaN  object                                                   Goi├ónia (453); Curitiba (444); Salvador (434)      3.0     14.0
+UF             9450      0      0.0       0         16  NaN     NaN     NaN        NaN  object                                                                  MT (1670); SP (1176); PR (868)      2.0      2.0
+TELEFONE       9450      0      0.0       0       9000  NaN     NaN     NaN        NaN  object                                   (89) 93308-4886 (2); (27) 92513-8372 (2); (14) 93133-9648 (2)     15.0     15.0
+
+--- legado.PRODUTOS (600 linhas) ---
+              linhas  nulos  %_nulos  vazios  distintos    min     max   media  negativos     tipo                                                    mais_frequentes  tam_min  tam_max
+coluna                                                                                                                                                                                 
+ID_PRODUTO       600      0      0.0       0        600   1.00   600.0  300.50        0.0    int64                                                                NaN      NaN      NaN
+DESCRICAO        600      0      0.0       0        600    NaN     NaN     NaN        NaN   object  CONSOLE VERTEX 830 (1); SERRA ORBIS 125 (1); COOLER LUMIX 200 (1)     12.0     26.0
+CATEGORIA        600      0      0.0      22         27    NaN     NaN     NaN        NaN   object             INFORMATICA (32); DIVERSOS (28); Casa e decoracao (28)      0.0     24.0
+PRECO_TABELA     600      0      0.0       0        598  40.96  8177.4  412.68        0.0  float64                                                                NaN      NaN      NaN
+ATIVO            600      0      0.0       0          2    NaN     NaN     NaN        NaN   object                                                    S (532); N (68)      1.0      1.0
+
+--- legado.PEDIDOS (26000 linhas) ---
+             linhas  nulos  %_nulos  vazios  distintos   min       max     media  negativos            tipo                                                              mais_frequentes  tam_min  tam_max
+coluna                                                                                                                                                                                                    
+ID_PEDIDO     26000      0     0.00       0      26000   1.0  26000.00  13000.50        0.0           int64                                                                          NaN      NaN      NaN
+ID_CLIENTE    26000      0     0.00       0       8856   1.0   9450.00   4749.45        0.0           int64                                                                          NaN      NaN      NaN
+DT_PEDIDO     26000      0     0.00       0      25653   NaN       NaN       NaN        NaN  datetime64[ns]    2024-12-13 14:15:00 (3); 2024-11-19 21:33:00 (3); 2024-09-07 09:47:00 (3)     19.0     19.0
+DT_ENTREGA    26000   5726    22.02       0      19835   NaN       NaN       NaN        NaN  datetime64[ns]  1900-01-01 00:00:00 (222); 2023-07-26 17:09:00 (3); 2025-11-05 20:10:00 (3)     19.0     19.0
+STATUS        26000      0     0.00       0          4   NaN       NaN       NaN        NaN          object                       ENTREGUE (20274); CANCELADO (3161); EM TRANSITO (1560)      8.0     11.0
+VALOR_TOTAL   26000      0     0.00       0      25256  58.5  31099.79   2334.94        0.0         float64                                                                          NaN      NaN      NaN
+VALOR_FRETE   26000      0     0.00       0       8509 -86.4     89.00     44.16       86.0         float64                                                                          NaN      NaN      NaN
+CANAL         26000      0     0.00       0          3   NaN       NaN       NaN        NaN          object                                 LOJA (11641); SITE (9140); TELEVENDAS (5219)      4.0     10.0
+
+--- legado.ITENS_PEDIDO (79107 linhas) ---
+             linhas  nulos  %_nulos  vazios  distintos    min       max     media  negativos     tipo
+coluna                                                                                               
+ID_ITEM       79107      0      0.0       0      79107   1.00  79107.00  39554.00          0    int64
+ID_PEDIDO     79107      0      0.0       0      27100   1.00  35997.00  13218.33          0    int64
+ID_PRODUTO    79107      0      0.0       0        600   1.00    600.00    299.99          0    int64
+QTD           79107      0      0.0       0          3   1.00      3.00      1.99          0    int64
+VL_UNITARIO   79107      0      0.0       0      48087  37.74   8584.31    401.89          0  float64
+VL_DESCONTO   79107      0      0.0       0      16100  -1.00   2862.20     47.31        770  float64
+
+┬À distribui├º├úo de STATUS:
+     STATUS     n
+   ENTREGUE 20274
+  CANCELADO  3161
+EM TRANSITO  1560
+  SEPARACAO  1005
+
+┬À valores distintos de CATEGORIA (texto livre):
+               CATEGORIA  n
+             Inform├ítica 52
+        eletrodomesticos 34
+                  Eletro 30
+                DIVERSOS 28
+        Casa e decoracao 28
+                  MOVEIS 27
+                    CASA 26
+Ferramentas e construcao 26
+        Games e consoles 26
+             Televisores 25
+        Esportes e lazer 25
+                  OUTROS 24
+      CELULAR/SMARTPHONE 24
+                   GAMES 24
+                    INFO 23
+     informatica e games 23
+                         22
+               TELEFONIA 21
+                TV E SOM 21
+               Celulares 20
+       Eletro-domesticos 19
+                 ESPORTE 18
+             FERRAMENTAS 18
+             AUDIO/VIDEO 16
+
+┬À formatos de CPF encontrados:
+        formato    n
+    com m├íscara 8073
+somente d├¡gitos  477
+        ausente  900
+
+>> gravado em /saida/perfilamento_legado.md
+
+========================================================================
+FONTE 2 ÔÇö PostgreSQL ┬À shop
+========================================================================
+
+--- shop.customer (17000 linhas) ---
+             linhas  nulos  %_nulos  vazios  distintos  min      max   media  negativos                 tipo                                                                                 mais_frequentes  tam_min  tam_max
+coluna                                                                                                                                                                                                                        
+customer_id   17000      0     0.00       0      17000  1.0  17000.0  8500.5        0.0                int64                                                                                             NaN      NaN      NaN
+full_name     17000      0     0.00       0      16158  NaN      NaN     NaN        NaN               object                         Andr├® Dias Lima (3); M├írcia Fonseca Souza (3); Gustavo Maciel Gomes (3)     14.0     32.0
+tax_id        17000   1341     7.89       0      15659  NaN      NaN     NaN        NaN               object                                               24770670524 (1); 81162618353 (1); 85148049448 (1)     11.0     11.0
+email         17000      0     0.00       0      17000  NaN      NaN     NaN        NaN               object       cliente16999@correio.com.br (1); cliente0@correio.com.br (1); cliente1@correio.com.br (1)     23.0     27.0
+created_at    17000      0     0.00       0       1095  NaN      NaN     NaN        NaN  datetime64[ns, UTC]  2023-03-08 03:00:00+00:00 (30); 2023-07-01 03:00:00+00:00 (27); 2024-04-18 03:00:00+00:00 (26)     25.0     25.0
+city          17000      0     0.00       0         23  NaN      NaN     NaN        NaN               object                                              Belo Horizonte (784); Palmas (779); Salvador (773)      5.0     14.0
+state         17000      0     0.00       0         16  NaN      NaN     NaN        NaN               object                                                                 MT (2924); SP (2192); PR (1523)      2.0      2.0
+phone         17000      0     0.00       0      16996  NaN      NaN     NaN        NaN               object                                      +5566972753064 (2); +5566926856088 (2); +5566986852150 (2)     14.0     14.0
+
+--- shop.product (2400 linhas) ---
+             linhas  nulos  %_nulos  vazios  distintos    min     max    media  negativos     tipo                                                                     mais_frequentes  tam_min  tam_max
+coluna                                                                                                                                                                                                  
+product_id     2400      0      0.0       0       2400      1    2400  1200.50        0.0    int64                                                                                 NaN      NaN      NaN
+sku            2400      0      0.0       0       2400    NaN     NaN      NaN        NaN   object                                      SKU-102383 (1); SKU-102382 (1); SKU-102381 (1)     10.0     10.0
+title          2400      0      0.0       0       2397    NaN     NaN      NaN        NaN   object  Ar-condicionado Lumix 811 (2); Purificador Volt 644 (2); Micro-ondas Delta 714 (2)     12.0     27.0
+category_id    2400      0      0.0       0         15      2      21    11.42        0.0    int64                                                                                 NaN      NaN      NaN
+list_price     2400      0      0.0       0       2362  45.19  4360.5   419.12        0.0  float64                                                                                 NaN      NaN      NaN
+active         2400      0      0.0       0          2  False    True     0.92        0.0     bool                                                                                 NaN      NaN      NaN
+
+--- shop.orders (56000 linhas) ---
+                linhas  nulos  %_nulos  vazios  distintos    min       max     media  negativos                 tipo                                                                              mais_frequentes  tam_min  tam_max
+coluna                                                                                                                                                                                                                             
+order_id         56000      0     0.00       0      56000   1.00  56000.00  28000.50        0.0                int64                                                                                          NaN      NaN      NaN
+customer_id      56000      0     0.00       0      16371   1.00  17000.00   8473.20        0.0                int64                                                                                          NaN      NaN      NaN
+placed_at        56000      0     0.00       0      55036    NaN       NaN       NaN        NaN  datetime64[ns, UTC]  2023-02-12 08:41:00+00:00 (3); 2023-02-05 08:29:00+00:00 (3); 2024-02-14 10:23:00+00:00 (3)     25.0     25.0
+delivered_at     56000  14647    26.16       0      40797    NaN       NaN       NaN        NaN  datetime64[ns, UTC]  2023-04-25 01:27:00+00:00 (3); 2025-10-01 06:31:00+00:00 (3); 2025-04-13 00:01:00+00:00 (3)     25.0     25.0
+status           56000      0     0.00       0          5    NaN       NaN       NaN        NaN               object                                           delivered (41353); canceled (4517); shipped (4504)      7.0     16.0
+total_amount     56000      0     0.00       0      53232  37.59  18315.73   2620.58        0.0              float64                                                                                          NaN      NaN      NaN
+freight_amount   56000      0     0.00       0       8048 -78.69     79.00     39.18      152.0              float64                                                                                          NaN      NaN      NaN
+channel          56000      0     0.00       0          3    NaN       NaN       NaN        NaN               object                                                web (23509); app (22399); marketplace (10092)      3.0     11.0
+
+--- shop.order_item (198386 linhas) ---
+               linhas  nulos  %_nulos  vazios  distintos    min        max     media  negativos     tipo
+coluna                                                                                                  
+order_item_id  198386      0      0.0       0     198386   1.00  198386.00  99193.50          0    int64
+order_id       198386      0      0.0       0      58539   1.00   65997.00  28483.04          0    int64
+product_id     198386      0      0.0       0       2400   1.00    2400.00   1198.60          0    int64
+quantity       198386      0      0.0       0          3   1.00       3.00      1.99          0    int64
+unit_price     198386      0      0.0       0      74962  40.67    4490.86    401.24          0  float64
+discount       198386      0      0.0       0      25339   0.00    1782.80     59.98          0  float64
+
+┬À distribui├º├úo de status:
+          status     n
+       delivered 41353
+        canceled  4517
+         shipped  4504
+payment_declined  2832
+      processing  2794
+
+┬À taxonomia de categorias:
+ category_id                    name              pai
+           1        Eletrodom├®sticos             None
+           2         Eletroport├íteis Eletrodom├®sticos
+           3            Linha Branca Eletrodom├®sticos
+           4             Inform├ítica             None
+           5               Notebooks      Inform├ítica
+           6             Perif├®ricos      Inform├ítica
+           7             Componentes      Inform├ítica
+           8                   Games             None
+           9                Consoles            Games
+          10                   Jogos            Games
+          11               Telefonia             None
+          12             Smartphones        Telefonia
+          13 Acess├│rios de Telefonia        Telefonia
+          14        Casa e Decora├º├úo             None
+          15                  M├│veis Casa e Decora├º├úo
+          16      Cama, Mesa e Banho Casa e Decora├º├úo
+          17         Esporte e Lazer             None
+          18             Ferramentas             None
+          19              ├üudio e TV             None
+          20             Televisores       ├üudio e TV
+          21                   ├üudio       ├üudio e TV
+
+>> gravado em /saida/perfilamento_ecommerce.md
+
+========================================================================
+FONTE 3 ÔÇö CSV ┬À atendimentos_sac.csv
+========================================================================
+Dica: tente ler com encoding='utf-8' e observe o erro. Depois leia certo.
+
+--- SAC (19228 linhas) ---
+                       linhas  nulos  %_nulos  vazios  distintos                                          mais_frequentes  tam_min  tam_max    tipo
+coluna                                                                                                                                             
+protocolo               19228      0     0.00       0      19000        P2023018745 (2); P2023001983 (2); P2023012146 (2)       11       11  object
+origem_sistema          19228      0     0.00       0          2                              ECOM (11936); LEGADO (7292)        4        6  object
+id_pedido_origem        19228      0     0.00       0      15760                           19580 (6); 23561 (5); 9729 (5)        1        5  object
+cpf_cliente             19228      0     0.00       0      15214  829.358.087-97 (6); 721.324.739-51 (5); 13742583930 (5)       11       14  object
+data_abertura           19228      0     0.00       0       1095        02/07/2023 (33); 09/03/2024 (30); 04/03/2024 (30)       10       10  object
+data_fechamento         19228   1168     6.07       0       1097        12/11/2024 (31); 18/06/2025 (30); 26/08/2025 (29)       10       10  object
+canal                   19228      0     0.00       0          6               EMAIL (3303); WHATSAPP (3221); chat (3216)        4        8  object
+motivo                  19228      0     0.00       0         36    ATRASO NA ENTREGA (1108); TROCA (1089); Elogio (1087)        5       64  object
+nota_satisfacao         19228   1729     8.99       0          6                             4 (3446); 5 (3386); 2 (3375)        1        1  object
+tempo_resolucao_horas   19228      0     0.00       0       4786                         6,46 (19); 5,71 (17); 13,70 (17)        4        6  object
+
+┬À origem_sistema: {'LEGADO': 7292, 'ECOM': 11936}
+┬À linhas id├¬nticas repetidas: 228
+┬À notas fora do dom├¡nio 1..5: 587
+┬À campos com quebra de linha interna: 268
+┬À motivos distintos (texto livre): 36
+
+>> gravado em /saida/perfilamento_sac.md
+
+========================================================================
+FONTE 4 ÔÇö NDJSON ┬À avaliacoes_marketplace.json
+========================================================================
+registros: 32000
+
+┬À presen├ºa de cada chave de primeiro n├¡vel:
+    review_id               32000 (100.0%)
+    order                   32000 (100.0%)
+    product                 32000 (100.0%)
+    submitted_at            32000 (100.0%)
+    rating                  31059 ( 97.1%)
+    verified_purchase       28867 ( 90.2%)
+    title                   27336 ( 85.4%)
+    comment                 22448 ( 70.2%)
+    helpful_votes           17645 ( 55.1%)
+
+┬À tipo do campo rating: {'int': 27797, 'str': 3262, 'NoneType': 941}
+┬À prefixo de order.ref: {'ECOM': 24041, 'LEG': 7959}
+┬À submitted_at com fuso: 25573 | sem fuso: 6427
+
+========================================================================
+PR├ôXIMO PASSO
+========================================================================
+
+Com este retrato em m├úos, o Relat├│rio de Diagn├│stico deve responder:
+
+  1. Quais campos s├úo candidatos a chave de jun├º├úo entre as fontes?
+     Qual a cobertura real de cada candidato?
+  2. Onde h├í heterogeneidade SEM├éNTICA ÔÇö o mesmo r├│tulo com significados
+     diferentes? Liste ao menos tr├¬s casos com evid├¬ncia num├®rica.
+  3. VALOR_TOTAL no legado e total_amount no e-commerce medem a mesma coisa?
+     Prove sua resposta comparando com a soma dos itens.
+  4. Quais anomalias voc├¬ consegue quantificar agora, e quais s├│ aparecer├úo
+     depois da integra├º├úo?
+

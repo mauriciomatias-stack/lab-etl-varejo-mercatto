@@ -1,0 +1,34 @@
+﻿============================================================
+1) CPF igual => mesma pessoa? (compara????o de nomes nos pares)
+============================================================
+pares (cliente legado, cliente ecommerce) com mesmo CPF: 2592
+  nome id??ntico (sem acento/caixa):       2592 (100.00%)
+  mesmo primeiro e ??ltimo nome:           2592 (100.00%)
+
+============================================================
+2) IDs de pedido existem nos dois sistemas?
+============================================================
+pedidos legado: 26000 | pedidos ecommerce: 56000
+n??meros de pedido presentes nos DOIS sistemas: 26000
+
+============================================================
+3) SAC -> pedido
+============================================================
+linhas: 19228 | id_pedido_origem n??o num??rico: 0
+  LEGADO: 7292 atendimentos | ligam a pedido existente: 7292 (100.00%)
+  ECOM: 11936 atendimentos | ligam a pedido existente: 11936 (100.00%)
+  atendimentos LEGADO cujo n??mero tamb??m existe como pedido ECOM (ambiguidade se ignorar origem_sistema): 7292
+  SAC com CPF preenchido: 19228 (100.00%)
+  SAC com CPF que existe em algum cliente: 17978 (93.50%)
+
+============================================================
+4) Avalia????es -> pedido e produto
+============================================================
+objetos lidos: 32000
+prefixos de order.ref: {'ECOM': 24041, 'LEG': 7959} | fora do formato esperado: 0
+  ECOM: 24041 (100.00%) ligam a pedido existente
+  LEG:  7959 (100.00%) ligam a pedido existente
+  product.sku preenchido: 32000 (100.00%)
+  product.sku existe em shop.product: 24041 (75.13%)
+
+Pronto. Guarde esta sa??da.
