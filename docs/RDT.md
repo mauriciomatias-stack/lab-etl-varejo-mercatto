@@ -2,6 +2,8 @@
 
 **Autor:** Mauricio Matias  **Data:** 16/10/2026  **Versão do pipeline:** Semana 2 (etapas 01 e 02)
 
+**Repositório:** https://github.com/mauriciomatias-stack/lab-etl-varejo-mercatto
+
 Escala dos dados: `ESCALA=0.2` (440.192 linhas nas quatro fontes, contando as 21 da tabela `category`).
 
 > Cada ficha traz evidência, alternativas, decisão, o que se perde, registros afetados e asserção associada. Resultado da execução: etapa `01_extracao` com 31 asserções e 0 falhas; etapa `02_transformacao` com 31 asserções e 0 falhas.
@@ -70,7 +72,7 @@ Escala dos dados: `ESCALA=0.2` (440.192 linhas nas quatro fontes, contando as 21
 
 **Registros afetados:** 26.450 cadastros de origem (9.450 do legado + 17.000 do e-commerce) viram 23.655 linhas em `dim_cliente`, 2.795 a menos (10,57%). Dessas linhas: 2.516 `AMBOS` (10,64%), 6.655 `LEGADO` e 14.484 `ECOM`. Sem CPF, sem pareamento: 2.241 (9,47% das linhas), 900 do legado e 1.341 do e-commerce. CPFs de 11 dígitos: 21.414, dos quais 1.977 (9,23%) com dígito verificador inválido.
 
-**Asserção associada:** etapa `02_transformacao`, 7 asserções, 0 falhas: `dim_cliente` com 23.655 linhas, igual à contagem independente em SQL (uma por CPF de 11 dígitos mais uma por cadastro sem CPF); 0 CPFs duplicados entre válidos e entre todos; `origem_unificacao` dentro de {LEGADO, ECOM, AMBOS}; `AMBOS` = 2.516, igual à interseção medida na semana 1.
+**Asserção associada:** etapa `02_transformacao` (31 asserções no total, 0 falhas; as deste ponto são): `dim_cliente` com 23.655 linhas, igual à contagem independente em SQL (uma por CPF de 11 dígitos mais uma por cadastro sem CPF); 0 CPFs duplicados entre válidos e entre todos; `origem_unificacao` dentro de {LEGADO, ECOM, AMBOS}; `AMBOS` = 2.516, igual à interseção medida na semana 1.
 
 ## Ficha RDT-03 · Duplicatas internas do legado
 
@@ -146,34 +148,31 @@ Escala dos dados: `ESCALA=0.2` (440.192 linhas nas quatro fontes, contando as 21
 
 **Asserção associada:** etapa `02_transformacao`: divergência entre total conformado e total da origem = 0 nos dois sistemas (±0,02); `valor_total = mercadoria + frete − desconto` em 100% das linhas; mercadoria − desconto = soma dos itens (±0,01) por pedido.
 
-## Ficha RDT-06 · Desconto `-1`, frete negativo e itens órfãos
+## Ficha RDT-06 · Desconto `-1`, frete negativo e preços extremos
 
-**Decisão:** (a) desconto `-1` do legado é sentinela e vira 0; (b) frete negativo é mantido como veio; (c) itens cujo pedido não existe na origem ficam fora do DW; (d) preços 10× acima da mediana do produto são só medidos (a medição deu 0).
+**Decisão:** (a) desconto `-1` do legado é sentinela e vira 0; (b) frete negativo é mantido como veio; (c) preços 10× acima da mediana do produto são só medidos (a medição deu 0). Os itens órfãos têm ficha própria (RDT-10).
 
 **Etapa do pipeline:** 02_transformacao · `monta_pedidos`
 
 **O que o dado mostrava:**
 - Desconto `-1`: 770 itens do legado (0,97% de 79.107), em 761 pedidos (2,93% de 26.000). O e-commerce não tem desconto negativo (mínimo 0,00). Tratado como zero, o total reconcilia em 100%.
 - Frete negativo: 86 pedidos do legado (0,33%) e 152 do e-commerce (0,27%). Não impede a reconciliação do total.
-- Itens órfãos: 1.169 itens do legado (1,48%) e 2.931 do e-commerce (1,48%) apontam para pedidos que não existem (1.100 e 2.539 pedidos distintos).
 - Preços 10× acima da mediana do próprio produto: 0 itens, então não há o que corrigir nem excluir.
 
 **Alternativas consideradas:**
 - Desconto `-1`: (a) tratar como zero, **escolhida**; (b) manter o `-1`, que somaria R$ 1 ao item, mas não reconcilia com o total da origem.
 - Frete negativo: (a) zerar; (b) manter, **escolhida**; (c) manter e marcar. Zerar mudaria o total de pedidos que a origem já reconcilia, e o DDL não tem coluna de marcação.
-- Órfãos: (a) excluir, **escolhida**; (b) criar um pedido artificial para cada um. Descartada: inventaria pedidos, clientes e datas que a origem não tem.
 - Preço 10×: corrigir ou excluir. Descartada: não há como distinguir erro de digitação de preço alto legítimo, e mexer quebraria a reconciliação com o total da origem. A medição não achou nenhum caso.
 
-**Justificativa:** o `-1` é marca de "sem desconto", não um valor; o frete negativo reconcilia com o total e pode ser estorno, então a origem é preservada; item sem pedido não tem a que se ligar (`pedido_sk` é obrigatório no DDL).
+**Justificativa:** o `-1` é marca de "sem desconto", não um valor; o frete negativo reconcilia com o total e pode ser estorno, então a origem é preservada.
 
 **O que se perde:**
-- Os 4.100 itens órfãos (1.169 + 2.931) só existem na `stg`; o valor deles não entra em nenhuma soma do DW.
 - O frete negativo continua no DW; qualquer média de frete precisa decidir se o inclui.
 - Nenhum preço 10× acima da mediana do produto foi encontrado, então o critério não alterou nenhum valor.
 
-**Registros afetados:** 770 itens e 761 pedidos (desconto); 238 pedidos (frete negativo, 0,29% dos 82.000); 4.100 itens órfãos (1,48% dos 277.493 itens).
+**Registros afetados:** 770 itens e 761 pedidos (desconto); 238 pedidos (frete negativo, 0,29% dos 82.000); 0 itens com preço 10× acima da mediana.
 
-**Asserção associada:** `fato_item_pedido` = itens que têm pedido na origem (contagem independente em SQL); itens sem produto = 0; divergência de total = 0.
+**Asserção associada:** itens sem produto = 0; divergência entre o total conformado e o da origem = 0 nos dois sistemas.
 
 ## Ficha RDT-07 · Mapeamento de categorias
 
@@ -249,7 +248,115 @@ Escala dos dados: `ESCALA=0.2` (440.192 linhas nas quatro fontes, contando as 21
 
 ---
 
-## Tabela-resumo (fichas 01 a 09)
+## Ficha RDT-10 · Itens órfãos
+
+**Decisão:** itens cujo pedido não existe na origem não entram em `fato_item_pedido`. Eles vão para a tabela de quarentena `qa.item_orfao`, com o valor da linha, e ficam fora de qualquer soma do DW.
+
+**Etapa do pipeline:** 02_transformacao (`monta_pedidos`) e 03_carga_dw
+
+**O que o dado mostrava:**
+- Legado: 1.169 itens (1,48% dos 79.107) apontam para 1.100 pedidos que não existem em `PEDIDOS`. O maior `ID_PEDIDO` em `ITENS_PEDIDO` é 35.997, e o maior em `PEDIDOS` é 26.000.
+- E-commerce: 2.931 itens (1,48% dos 198.386) apontam para 2.539 pedidos que não existem em `orders`. O maior `order_id` em `order_item` é 65.997, e o maior em `orders` é 56.000.
+- Nenhum item órfão fica sem produto (0), e nenhum pedido fica sem itens (0), então o problema é só de itens sem pedido.
+- As origens não têm chave estrangeira declarada, e o acesso é somente leitura: não há como corrigir na origem.
+
+**Alternativas consideradas:**
+1. Descartar os órfãos sem registro. Descartada: some dinheiro sem deixar rastro, e a diferença apareceria só na reconciliação.
+2. Criar um pedido artificial para cada pedido inexistente. Descartada: inventaria pedido, cliente e data que a origem não tem, e contaminaria a ABT com compras que podem não ter existido.
+3. Carregar o item com `pedido_sk` nulo. Descartada: o DDL declara `pedido_sk NOT NULL` em `fato_item_pedido`.
+4. Manter fora das fatos e guardar em quarentena (`qa.item_orfao`). **Escolhida.**
+
+**Justificativa:** sem pedido, o item não tem cliente nem data, e a pergunta analítica (recompra por cliente) não consegue usá-lo. A quarentena preserva a evidência, para que alguém com acesso à origem possa investigar, sem deixar o valor entrar em nenhuma soma do DW.
+
+**O que se perde:** o valor desses itens não entra em nenhuma medida do DW, nem na reconciliação financeira. Se os pedidos faltantes existirem em outro sistema, essas vendas ficam fora da análise. Valor bruto (quantidade × preço) dos itens em quarentena: **R$ 556.140,00**, sendo R$ 116.783,10 do legado (1.100 pedidos) e R$ 439.356,90 do e-commerce (2.539 pedidos), cerca de 0,27% do valor total de R$ 209.654.657,47 do DW.
+
+**Registros afetados:** 4.100 itens (1,48% dos 277.493): 1.169 do legado e 2.931 do e-commerce. Entram em `fato_item_pedido` 273.393 itens.
+
+**Asserção associada:** `fato_item_pedido` = itens que têm pedido na origem (273.393, contagem independente em SQL); `qa.item_orfao` = 4.100; itens sem produto = 0.
+
+## Ficha RDT-11 · Declaração de grão e definição da reconciliação financeira
+
+**Decisão:** `fato_pedido` tem o grão de **um pedido de um sistema de origem**, identificado por `(sistema_origem, id_origem)`, com `id_origem` no formato `LEG-123` ou `ECOM-456`. `fato_item_pedido` tem o grão de **uma linha de item de um pedido**. `qtd_itens` é a soma das unidades, não o número de linhas.
+
+**Etapa do pipeline:** 03_carga_dw
+
+**O que o dado mostrava:**
+- 26.000 números de pedido existem nos dois sistemas (os ids do legado de 1 a 26.000 também existem no e-commerce). Sem o sistema, o número sozinho não identifica o pedido.
+- São 26.000 pedidos do legado e 56.000 do e-commerce, 82.000 no total. A única ponte entre os dois sistemas é o CPF do cliente (e-mail e telefone em comum: 0). Para os 26.000 números que colidem, a consulta de verificação no DW (junção legado × e-commerce pelo número) mostra que, dos 26.000 números em comum, **0** têm o mesmo cliente, **25** (0,10%) têm a mesma data (coincidência) e **0** têm o mesmo valor total. São, portanto, pedidos distintos que apenas compartilham numeração, e fundi-los pelo número misturaria compras de clientes diferentes.
+- O SAC e as avaliações referenciam o pedido por `(origem_sistema, id)` ou por `LEG-n` / `ECOM-n`, o que sustenta a chave composta.
+
+**Alternativas consideradas:**
+1. Usar só o número do pedido como chave. Descartada: 26.000 números colidem.
+2. Unificar os pedidos que têm o mesmo número nos dois sistemas. Descartada: não há chave que ateste que sejam o mesmo pedido (ver a comparação acima), e fundir somaria valores de compras distintas.
+3. Chave composta `(sistema_origem, id_origem)`, com `id_origem` prefixado. **Escolhida.**
+4. Para `qtd_itens`: contar linhas em vez de unidades. Descartada: um item de 3 unidades valeria o mesmo que um de 1, e o valor do pedido cresce com as unidades.
+
+**Reconciliação financeira (exigência de 0,1%):** a soma de `valor_total` do DW, por sistema, é comparada com o total calculado na origem **pela mesma definição** do DW (RDT-05):
+- Legado: `SUM(VALOR_TOTAL)`, que já inclui o frete.
+- E-commerce: `SUM(total_amount) + SUM(freight_amount)`, porque o `total_amount` da origem não inclui o frete.
+Comparar o `valor_total` do e-commerce direto com `SUM(total_amount)` daria uma diferença igual ao frete (cerca de 1,5%), que é um efeito da definição, e não uma perda da carga.
+
+**Justificativa:** a chave composta é a única que reproduz o que as fontes de arquivo já usam para apontar para o pedido. A reconciliação com a mesma definição prova que a carga não perdeu nem inventou valor.
+
+**O que se perde:** a chave é mais longa e todo cruzamento precisa levar o sistema junto; pedidos de mesmo número nos dois sistemas nunca são comparados como "o mesmo pedido". A reconciliação compara o DW com a origem recalculada, e não com o `total_amount` bruto do e-commerce, e isso fica explícito aqui.
+
+**Registros afetados:** 82.000 pedidos (100%) e 273.393 itens (100% dos que têm pedido). Reconciliação (saída de `03_carga_dw.py`): legado R$ 60.708.429,93 na origem e R$ 60.708.429,93 no DW; e-commerce R$ 148.946.227,54 na origem (`total_amount` + frete) e R$ 148.946.227,54 no DW; total R$ 209.654.657,47 nos dois lados. A diferença é R$ 0,00 nos dois sistemas (erro relativo da ordem de 1e-15, só arredondamento de ponto flutuante), contra a tolerância de 0,1%.
+
+**Asserção associada:** `fato_pedido` = 82.000 linhas, sem duplicatas em `(sistema_origem, id_origem)`; reconciliação financeira por sistema dentro de 0,1%.
+
+## Ficha RDT-12 · Pedidos sem cliente correspondente
+
+**Decisão:** nenhum pedido fica sem cliente em `dim_cliente`, e nenhum registro-sentinela "cliente desconhecido" é criado. A regra é verificada a cada carga, e qualquer pedido sem cliente iria para quarentena, e não para `fato_pedido`.
+
+**Etapa do pipeline:** 03_carga_dw
+
+**O que o dado mostrava:** na semana 1, 0 pedidos do legado e 0 do e-commerce apontavam para um cliente inexistente (`ID_CLIENTE` e `customer_id` presentes nas tabelas de clientes), mesmo sem chave estrangeira declarada nas origens. Todos os 26.450 cadastros de origem têm uma linha em `ponte_cliente`, e todos os 82.000 pedidos encontram o seu `cliente_sk`.
+
+**Alternativas consideradas:**
+1. Criar a linha "CLIENTE DESCONHECIDO" em `dim_cliente` para receber esses pedidos. Descartada: o pedido apareceria na ABT como se fosse de um cliente real, e todos os pedidos órfãos se fundiriam em um só.
+2. Carregar com `cliente_sk` nulo. Descartada: o DDL declara `cliente_sk NOT NULL`.
+3. Excluir o pedido da carga e registrar em quarentena. **Escolhida como regra**, hoje sem nenhum caso.
+
+**Justificativa:** o problema não ocorre nos dados atuais, mas a origem não tem chave estrangeira, então pode ocorrer numa carga futura. Prefere-se uma regra que falhe de forma visível (asserção) a um valor artificial que esconda o problema.
+
+**O que se perde:** nada hoje. Se algum dia ocorrer, o pedido não entra no DW nem na ABT.
+
+**Registros afetados:** 0 pedidos (0% dos 82.000).
+
+**Asserção associada:** pedidos sem cliente, canal ou status = 0 (já ativa na etapa 02) e pedidos sem cliente em `fato_pedido` = 0 na etapa 03.
+
+## Ficha RDT-13 · Atendimentos (SAC) e avaliações: ligação ao pedido, ao cliente e ao produto
+
+**Decisão:** todos os atendimentos e todas as avaliações são carregados (`fato_atendimento` e `fato_avaliacao`), sem descartar linha por falta de par. O pedido é ligado pela chave composta `(origem_sistema, id_pedido_origem)` no SAC e pelo prefixo `LEG-n` / `ECOM-n` nas avaliações. O **cliente do atendimento vem só do CPF**; o cliente do pedido **não** é usado como reserva. Onde o par não existe, a coluna fica NULL (`cliente_sk` em 1.229 atendimentos; `produto_sk` em 7.959 avaliações). Valores fora de domínio viram NULL, nunca são "consertados".
+
+**Etapa do pipeline:** 03_carga_dw (`monta_atendimentos`, `monta_avaliacoes`)
+
+**O que o dado mostrava:**
+- SAC: 19.228 linhas para 19.000 protocolos; as 228 linhas a mais são duplicatas exatas. Os 19.000 atendimentos ligam a um pedido do DW pela chave composta. Sem `origem_sistema`, a ligação seria ambígua: os 7.292 números de pedido do legado também existem no e-commerce.
+- Cliente do SAC: o CPF está presente em todos os atendimentos, mas só 17.771 (93,53%) encontram um cliente em `dim_cliente`; 1.229 (6,47%) não encontram. Entre os 17.771 que têm cliente pelo CPF, **apenas 1** tem o mesmo cliente do pedido ao qual o atendimento está ligado; em **17.770** o CPF e o pedido apontam para pessoas diferentes. Ou seja, a chave do pedido é válida, mas o atendimento não pertence ao cliente daquele pedido.
+- Avaliações: 32.000 linhas, 100% ligam a um pedido pelo `order.ref`. O `product.sku` só existe em `dim_produto` para 24.041 (75,13%); as 7.959 do legado ficam sem produto, porque o SKU não existe no cadastro do e-commerce.
+- Notas: no SAC, 584 estão fora de 1 a 5 e 1.711 são nulas; nas avaliações, 941 são nulas ou ilegíveis (o campo vem como inteiro, texto ou ausente).
+- Datas: 25.573 avaliações têm fuso e 6.427 (20,08%) não têm. No SAC, 1.150 atendimentos têm `data_fechamento` vazia (já sem as duplicatas).
+- Outros: 87 tempos de resolução negativos; vírgula decimal no tempo de resolução; 36 textos livres de motivo; canal com variações de caixa.
+
+**Alternativas consideradas:**
+1. Descartar atendimentos e avaliações sem par confiável. Descartada: some informação e esconde o problema; a ligação ao pedido e ao produto pode ser NULL sem impedir o uso do restante.
+2. Para o cliente do SAC, usar o cliente do pedido (ou o CPF e, na falta, o pedido). Descartada: em 17.770 de 17.771 casos os dois discordam, então usar o pedido atribuiria o atendimento a outra pessoa e, na ABT de recompra, pareceria um sinal do cliente errado.
+3. Cliente do SAC só pelo CPF, NULL quando não há par. **Escolhida.**
+4. Nota fora de 1 a 5: ajustar para o limite mais próximo (clamp). Descartada: inventa um valor; vira NULL, igual à nota nula.
+5. Motivo: manter os 36 textos livres. Descartada: o mesmo motivo escrito de formas diferentes fragmenta qualquer contagem. Os sufixos "OBS: CLIENTE REITEROU O CONTATO" (265 casos) são removidos e três sinônimos são fundidos (`ATRASO ENTREGA` em `ATRASO NA ENTREGA`, `CANCELAMENTO A PEDIDO DO CLIENTE` em `CANCELAMENTO CLIENTE`, `TROCA DE PRODUTO` em `TROCA`), o que dá 12 motivos.
+
+**Justificativa:** a chave de pedido é válida (existe pedido com aquele `(sistema, id)`), mas não se confirma pelo cliente, e o CPF é o que identifica a pessoa. Por isso o CPF decide o cliente, e o `pedido_sk` do SAC fica como informação da fonte, sem ser usado para inferir quem é o cliente. Datas sem fuso das avaliações são tomadas como horário local (`America/Sao_Paulo`), a mesma regra do RDT-09; `data_fechamento` vazia fica NULL (atendimento em aberto ou dado perdido, e a origem não permite distinguir).
+
+**O que se perde:** os 1.229 atendimentos sem cliente não podem entrar em nenhum atributo da ABT por cliente; as 7.959 avaliações sem produto não entram em análises por produto; o texto livre de motivo e a observação de reiteração de contato; a hora do dia e a distinção entre fechamento em aberto e perdido. Quem juntar o SAC ao cliente por `pedido_sk` obtém pessoas diferentes das do CPF, e isso precisa ser evitado.
+
+**Registros afetados:**
+- SAC: 228 duplicatas removidas (1,19% de 19.228); 1.229 sem cliente (6,47% de 19.000); 584 notas fora de domínio (3,07%) e 1.711 nulas (9,01%); 87 tempos negativos (0,46%); 1.150 sem fechamento (6,05%); 265 motivos com sufixo (1,39%).
+- Avaliações: 7.959 sem produto (24,87% de 32.000); 941 sem nota utilizável (2,94%); 6.427 sem fuso (20,08%).
+
+**Asserção associada:** `fato_atendimento` = 19.000 e `fato_avaliacao` = 32.000 linhas (stg = carregadas + removidas); `protocolo` e `review_id` únicos; nota fora de 1 a 5 = 0; motivos distintos = 12; integridade referencial dos dois fatos (quando preenchidos) = 0 órfãos.
+
+## Tabela-resumo (fichas 01 a 13)
 
 | Ficha | Decisão | Registros afetados | % da base | Informação perdida? |
 |---|---|---|---|---|
@@ -258,10 +365,14 @@ Escala dos dados: `ESCALA=0.2` (440.192 linhas nas quatro fontes, contando as 21
 | RDT-03 | Fusão de duplicatas do legado | 279 | 2,95% do legado | `id_legado` de um cadastro só na ponte |
 | RDT-04 | `CANCELADO` + motivo | 10.510 | 12,82% | Motivo nulo em 3.161 do legado |
 | RDT-05 | Total = mercadoria + frete − desconto | 82.000 | 100% | `valor_total` do e-commerce ≠ `total_amount` (frete) |
-| RDT-06 | `-1` → 0; frete mantido; órfãos fora | 770 + 238 + 4.100 | 0,97% / 0,29% / 1,48% | 4.100 itens só na `stg` |
+| RDT-06 | `-1` → 0; frete negativo mantido | 770 itens + 238 pedidos | 0,97% dos itens do legado / 0,29% dos pedidos | Valor `-1` original só na `stg` |
 | RDT-07 | Mapeamento de categorias | 97 de 600 produtos | 16,17% | Sem categoria útil ou ambíguos |
 | RDT-08 | NULL para sentinela e data impossível | 705 | 1,14% dos entregues | Data original só na `stg` |
 | RDT-09 | `America/Sao_Paulo` | 7.095 pedidos mudam de dia | 12,67% dos 56.000 do e-commerce | Hora do dia |
+| RDT-10 | Itens órfãos para quarentena | 4.100 itens | 1,48% dos 277.493 | Valor desses itens fora do DW |
+| RDT-11 | Grão por `(sistema, id)` e reconciliação com a mesma definição | 82.000 pedidos | 100% | Pedidos de mesmo número nunca são fundidos |
+| RDT-12 | Sem cliente-sentinela; falha se aparecer | 0 | 0% | Nada hoje |
+| RDT-13 | SAC e avaliações: cliente só pelo CPF, NULL onde não há par | 1.229 sem cliente + 7.959 sem produto | 6,47% do SAC / 24,87% das avaliações | Cliente do pedido não usado; hora e motivo livre |
 
 ## Reflexão final (máximo 400 palavras)
 

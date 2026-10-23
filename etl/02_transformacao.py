@@ -505,12 +505,13 @@ def conforma_valores(qa):
 
     p, it, info = monta_pedidos(lp, li, ep, ei)
     ESTADO["pedidos"] = info
-    p["cliente_sk"] = [dict(zip(zip(ponte["sistema"], ponte["id_origem"]), ponte["cliente_sk"]))
-                       .get(k) for k in zip(p["sistema"], p["cliente"])]
-    p["canal_sk"] = [dict(zip(zip(canais["sistema"], canais["canal_origem"]), canais["canal_sk"]))
-                     .get(k) for k in zip(p["sistema"], p["canal"])]
-    p["status_sk"] = [dict(zip(zip(stat["sistema"], stat["status_origem"]), stat["status_sk"]))
-                      .get(k) for k in zip(p["sistema"], p["status"])]
+    # os dicionários são montados UMA vez (montá-los dentro do laço custava O(pedidos x ponte))
+    d_cli = dict(zip(zip(ponte["sistema"], ponte["id_origem"]), ponte["cliente_sk"]))
+    d_can = dict(zip(zip(canais["sistema"], canais["canal_origem"]), canais["canal_sk"]))
+    d_sta = dict(zip(zip(stat["sistema"], stat["status_origem"]), stat["status_sk"]))
+    p["cliente_sk"] = [d_cli.get(k) for k in zip(p["sistema"], p["cliente"])]
+    p["canal_sk"] = [d_can.get(k) for k in zip(p["sistema"], p["canal"])]
+    p["status_sk"] = [d_sta.get(k) for k in zip(p["sistema"], p["status"])]
     n_sem_dim = int(p[["cliente_sk", "canal_sk", "status_sk"]].isna().any(axis=1).sum())
 
     fato = pd.DataFrame({
