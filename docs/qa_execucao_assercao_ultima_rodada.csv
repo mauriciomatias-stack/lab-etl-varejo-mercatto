@@ -1,0 +1,91 @@
+﻿id;executado_em;etapa;nome;descricao;valor_obtido;valor_esperado;aprovado
+1;2026-10-16 01:46:39.438046+00;01_extracao;CLIENTES: linhas lidas x origem;a leitura não pode perder linhas;9450.0;= 9450;t
+2;2026-10-16 01:46:39.438046+00;01_extracao;CLIENTES: linhas na stg x origem;a gravação não pode perder nem duplicar linhas;9450.0;= 9450;t
+3;2026-10-16 01:46:39.438046+00;01_extracao;CLIENTES: textos com acento corrompido;indica leitura latin1 como utf8 (ver config.py);0.0;= 0;t
+4;2026-10-16 01:46:39.438046+00;01_extracao;PRODUTOS: linhas lidas x origem;a leitura não pode perder linhas;600.0;= 600;t
+5;2026-10-16 01:46:39.438046+00;01_extracao;PRODUTOS: linhas na stg x origem;a gravação não pode perder nem duplicar linhas;600.0;= 600;t
+6;2026-10-16 01:46:39.438046+00;01_extracao;PRODUTOS: textos com acento corrompido;indica leitura latin1 como utf8 (ver config.py);0.0;= 0;t
+7;2026-10-16 01:46:39.438046+00;01_extracao;PEDIDOS: linhas lidas x origem;a leitura não pode perder linhas;26000.0;= 26000;t
+8;2026-10-16 01:46:39.438046+00;01_extracao;PEDIDOS: linhas na stg x origem;a gravação não pode perder nem duplicar linhas;26000.0;= 26000;t
+9;2026-10-16 01:46:39.438046+00;01_extracao;PEDIDOS.VALOR_TOTAL: soma na stg x origem;o valor monetário não pode mudar na extração;60708429.93000034;[60708429.92, 60708429.94];t
+10;2026-10-16 01:46:39.438046+00;01_extracao;PEDIDOS: textos com acento corrompido;indica leitura latin1 como utf8 (ver config.py);0.0;= 0;t
+11;2026-10-16 01:46:39.438046+00;01_extracao;ITENS_PEDIDO: linhas lidas x origem;a leitura não pode perder linhas;79107.0;= 79107;t
+12;2026-10-16 01:46:39.438046+00;01_extracao;ITENS_PEDIDO: linhas na stg x origem;a gravação não pode perder nem duplicar linhas;79107.0;= 79107;t
+13;2026-10-16 01:46:39.438046+00;01_extracao;ITENS_PEDIDO: textos com acento corrompido;indica leitura latin1 como utf8 (ver config.py);0.0;= 0;t
+14;2026-10-16 01:46:39.438046+00;01_extracao;shop.category: linhas lidas x origem;a leitura não pode perder linhas;21.0;= 21;t
+15;2026-10-16 01:46:39.438046+00;01_extracao;shop.category: linhas na stg x origem;a gravação não pode perder nem duplicar linhas;21.0;= 21;t
+16;2026-10-16 01:46:39.438046+00;01_extracao;shop.customer: linhas lidas x origem;a leitura não pode perder linhas;17000.0;= 17000;t
+17;2026-10-16 01:46:39.438046+00;01_extracao;shop.customer: linhas na stg x origem;a gravação não pode perder nem duplicar linhas;17000.0;= 17000;t
+18;2026-10-16 01:46:39.438046+00;01_extracao;shop.product: linhas lidas x origem;a leitura não pode perder linhas;2400.0;= 2400;t
+19;2026-10-16 01:46:39.438046+00;01_extracao;shop.product: linhas na stg x origem;a gravação não pode perder nem duplicar linhas;2400.0;= 2400;t
+20;2026-10-16 01:46:39.438046+00;01_extracao;shop.orders: linhas lidas x origem;a leitura não pode perder linhas;56000.0;= 56000;t
+21;2026-10-16 01:46:39.438046+00;01_extracao;shop.orders: linhas na stg x origem;a gravação não pode perder nem duplicar linhas;56000.0;= 56000;t
+22;2026-10-16 01:46:39.438046+00;01_extracao;shop.orders.total_amount: soma na stg x origem;o valor monetário não pode mudar na extração;146752362.12999946;[146752362.12, 146752362.14];t
+23;2026-10-16 01:46:39.438046+00;01_extracao;shop.order_item: linhas lidas x origem;a leitura não pode perder linhas;198386.0;= 198386;t
+24;2026-10-16 01:46:39.438046+00;01_extracao;shop.order_item: linhas na stg x origem;a gravação não pode perder nem duplicar linhas;198386.0;= 198386;t
+25;2026-10-16 01:46:39.438046+00;01_extracao;SAC: registros na stg x arquivo;contagem independente feita com o módulo csv;19228.0;= 19228;t
+26;2026-10-16 01:46:39.438046+00;01_extracao;SAC: protocolo preenchido;;0;= 0 nulos;t
+27;2026-10-16 01:46:39.438046+00;01_extracao;SAC: origem_sistema;sem origem válida o pedido não pode ser ligado (decisão 6);0;todos em ['ECOM', 'LEGADO'];t
+28;2026-10-16 01:46:39.438046+00;01_extracao;avaliações: linhas JSON inválidas;linha que não vira objeto JSON não pode sumir em silêncio;0.0;= 0;t
+29;2026-10-16 01:46:39.438046+00;01_extracao;avaliações: registros na stg x arquivo;uma linha não vazia do arquivo = um registro na stg;32000.0;= 32000;t
+30;2026-10-16 01:46:39.438046+00;01_extracao;avaliações: review_id preenchido;;0;= 0 nulos;t
+31;2026-10-16 01:46:39.438046+00;01_extracao;avaliações: review_id;;0;= 0 duplicados;t
+173;2026-10-23 07:32:40.574972+00;02_transformacao;dim_cliente: linhas x contagem independente em SQL;um cliente por CPF de 11 dígitos + um por cadastro sem CPF;23655.0;= 23655;t
+174;2026-10-23 07:32:40.574972+00;02_transformacao;dim_cliente: CPF duplicado entre CPFs válidos;mesma pessoa não pode ocupar duas linhas;0.0;= 0;t
+175;2026-10-23 07:32:40.574972+00;02_transformacao;dim_cliente: CPF duplicado (válidos e inválidos);a regra pareia também CPF inválido (RDT-02);0.0;= 0;t
+176;2026-10-23 07:32:40.574972+00;02_transformacao;dim_cliente: origem_unificacao;;0;todos em ['AMBOS', 'ECOM', 'LEGADO'];t
+177;2026-10-23 07:32:40.574972+00;02_transformacao;ponte_cliente: cadastros de origem mapeados;todo cadastro de origem aponta para um cliente_sk;26450.0;= 26450;t
+178;2026-10-23 07:32:40.574972+00;02_transformacao;dim_cliente: nome_padronizado;;0;= 0 nulos;t
+179;2026-10-23 07:32:40.574972+00;02_transformacao;dim_cliente x cadastros de origem;junção não pode multiplicar linhas;23655;<= 26450;t
+180;2026-10-23 07:32:40.574972+00;02_transformacao;canal legado: valores sem mapeamento;;0;todos em ['LOJA', 'SITE', 'TELEVENDAS'];t
+181;2026-10-23 07:32:40.574972+00;02_transformacao;canal e-commerce: valores sem mapeamento;;0;todos em ['app', 'marketplace', 'web'];t
+182;2026-10-23 07:32:40.574972+00;02_transformacao;dim_tempo: dias no calendário;;2557.0;= 2557;t
+183;2026-10-23 07:32:40.574972+00;02_transformacao;status: pedidos sem mapeamento;todo status de origem precisa cair em uma célula do mapeamento;0.0;= 0;t
+184;2026-10-23 07:32:40.574972+00;02_transformacao;status: pedidos mapeados x total na stg;;82000.0;= 82000;t
+185;2026-10-23 07:32:40.574972+00;02_transformacao;dim_status: linhas;;9.0;= 9;t
+186;2026-10-23 07:32:40.574972+00;02_transformacao;categorias: valores do legado sem regra de mapeamento;valor novo no legado cairia em NAO_CLASSIFICADO sem aviso;0.0;= 0;t
+187;2026-10-23 07:32:40.574972+00;02_transformacao;dim_produto: linhas x produtos de origem;;3000.0;= 3000;t
+188;2026-10-23 07:32:40.574972+00;02_transformacao;dim_produto: categoria_origem preservada (legado);conformar não pode apagar o valor bruto;600.0;= 600;t
+189;2026-10-23 07:32:40.574972+00;02_transformacao;fato_pedido: linhas x pedidos na stg;;82000.0;= 82000;t
+190;2026-10-23 07:32:40.574972+00;02_transformacao;fato_pedido: pedidos sem cliente, canal ou status;chave estrangeira obrigatória;0.0;= 0;t
+191;2026-10-23 07:32:40.574972+00;02_transformacao;fato_pedido: junção pedido x itens agregados;junção não pode multiplicar linhas;82000;<= 82000;t
+192;2026-10-23 07:32:40.574972+00;02_transformacao;fato_item_pedido: linhas x itens com pedido na origem;itens órfãos ficam de fora (RDT-06);273393.0;= 273393;t
+193;2026-10-23 07:32:40.574972+00;02_transformacao;fato_item_pedido: itens sem produto;;0.0;= 0;t
+194;2026-10-23 07:32:40.574972+00;02_transformacao;fato_pedido: mercadoria − desconto x soma dos itens (±0,01);;0.0;= 0;t
+195;2026-10-23 07:32:40.574972+00;02_transformacao;fato_pedido: valor_total = mercadoria + frete − desconto;;0.0;= 0;t
+196;2026-10-23 07:32:40.574972+00;02_transformacao;legado: VALOR_TOTAL x total conformado (±0,02);VALOR_TOTAL inclui o frete;0.0;= 0;t
+197;2026-10-23 07:32:40.574972+00;02_transformacao;e-commerce: total_amount x total conformado sem frete (±0,02);total_amount não inclui o frete;0.0;= 0;t
+198;2026-10-23 07:32:40.574972+00;02_transformacao;datas: entrega antes do pedido no DW;viram NULL (RDT-08);0.0;= 0;t
+199;2026-10-23 07:32:40.574972+00;02_transformacao;datas: sentinela 1900 no DW;;0.0;= 0;t
+200;2026-10-23 07:32:40.574972+00;02_transformacao;datas: dias_entrega negativo;;0.0;= 0;t
+201;2026-10-23 07:32:40.574972+00;02_transformacao;datas: sentinelas tratadas x contagem independente na stg;;222.0;= 222;t
+202;2026-10-23 07:32:40.574972+00;02_transformacao;datas: pedidos ENTREGUE sem data de entrega = sentinelas + impossíveis;;705.0;= 705;t
+203;2026-10-23 07:32:40.574972+00;02_transformacao;datas: pedido não entregue com data de entrega;entrega nula em pedido não entregue é nulo estrutural;0.0;= 0;t
+260;2026-10-23 07:56:21.215254+00;03_carga_dw;quarentena: itens em quarentena + itens no DW = itens na stg;nenhum item some sem registro (RDT-10);277493.0;= 277493;t
+261;2026-10-23 07:56:21.215254+00;03_carga_dw;quarentena: itens com pedido sem produto no DW;;0.0;= 0;t
+262;2026-10-23 07:56:21.215254+00;03_carga_dw;fato_atendimento: linhas carregadas x linhas tratadas;;19000.0;= 19000;t
+263;2026-10-23 07:56:21.215254+00;03_carga_dw;fato_atendimento: stg = carregadas + duplicatas removidas + excluídas;;19228.0;= 19228;t
+264;2026-10-23 07:56:21.215254+00;03_carga_dw;fato_atendimento: motivos distintos após conformação;36 textos livres -> 12 motivos (RDT-13);12.0;= 12;t
+265;2026-10-23 07:56:21.215254+00;03_carga_dw;fato_atendimento: protocolo único;;0;= 0 duplicados;t
+266;2026-10-23 07:56:21.215254+00;03_carga_dw;fato_atendimento: nota fora de 1..5 após tratamento;;0.0;= 0;t
+267;2026-10-23 07:56:21.215254+00;03_carga_dw;fato_atendimento: atendimentos sem pedido (manter com NULL, RDT-13);o SAC liga 100% pelos pares (origem_sistema, id_pedido_origem);0.0;= 0;t
+268;2026-10-23 07:56:21.215254+00;03_carga_dw;fato_avaliacao: linhas carregadas x linhas tratadas;;32000.0;= 32000;t
+269;2026-10-23 07:56:21.215254+00;03_carga_dw;fato_avaliacao: stg = carregadas + duplicatas + excluídas;;32000.0;= 32000;t
+270;2026-10-23 07:56:21.215254+00;03_carga_dw;fato_avaliacao: review_id único;;0;= 0 duplicados;t
+271;2026-10-23 07:56:21.215254+00;03_carga_dw;fato_avaliacao: avaliações sem pedido;order.ref liga 100% pelo prefixo LEG-/ECOM-;0.0;= 0;t
+272;2026-10-23 07:56:21.215254+00;03_carga_dw;fato_avaliacao: nota fora de 1..5 após tratamento;;0.0;= 0;t
+273;2026-10-23 07:56:21.215254+00;03_carga_dw;integridade: fato_pedido -> dim_cliente;chave órfã no DW;0.0;= 0;t
+274;2026-10-23 07:56:21.215254+00;03_carga_dw;integridade: fato_pedido -> dim_tempo (pedido);chave órfã no DW;0.0;= 0;t
+275;2026-10-23 07:56:21.215254+00;03_carga_dw;integridade: fato_pedido -> dim_canal;chave órfã no DW;0.0;= 0;t
+276;2026-10-23 07:56:21.215254+00;03_carga_dw;integridade: fato_pedido -> dim_status;chave órfã no DW;0.0;= 0;t
+277;2026-10-23 07:56:21.215254+00;03_carga_dw;integridade: fato_item_pedido -> fato_pedido;chave órfã no DW;0.0;= 0;t
+278;2026-10-23 07:56:21.215254+00;03_carga_dw;integridade: fato_item_pedido -> dim_produto;chave órfã no DW;0.0;= 0;t
+279;2026-10-23 07:56:21.215254+00;03_carga_dw;integridade: fato_atendimento -> dim_cliente (quando preenchido);chave órfã no DW;0.0;= 0;t
+280;2026-10-23 07:56:21.215254+00;03_carga_dw;integridade: fato_atendimento -> fato_pedido (quando preenchido);chave órfã no DW;0.0;= 0;t
+281;2026-10-23 07:56:21.215254+00;03_carga_dw;integridade: fato_avaliacao -> fato_pedido (quando preenchido);chave órfã no DW;0.0;= 0;t
+282;2026-10-23 07:56:21.215254+00;03_carga_dw;integridade: fato_avaliacao -> dim_produto (quando preenchido);chave órfã no DW;0.0;= 0;t
+283;2026-10-23 07:56:21.215254+00;03_carga_dw;integridade: ponte_cliente -> dim_cliente;chave órfã no DW;0.0;= 0;t
+284;2026-10-23 07:56:21.215254+00;03_carga_dw;integridade: pedidos sem cliente (RDT-12);chave órfã no DW;0.0;= 0;t
+285;2026-10-23 07:56:21.215254+00;03_carga_dw;reconciliação LEGADO: |DW − origem| / origem;tolerância de 0,1% (Entrega 3);0.0000000000000056454549698234;[0, 0.001];t
+286;2026-10-23 07:56:21.215254+00;03_carga_dw;reconciliação ECOM: |DW − origem| / origem;tolerância de 0,1% (Entrega 3);0.000000000000003401492531623618;[0, 0.001];t
+287;2026-10-23 07:56:21.215254+00;03_carga_dw;reconciliação TOTAL: |DW − origem| / origem;;0.00000000000000085289750527845515;[0, 0.001];t
