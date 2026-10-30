@@ -1,12 +1,12 @@
 # Registro de Decisões de Transformação (RDT)
 
-**Autor:** Mauricio Matias  **Data:** 16/10/2026  **Versão do pipeline:** Semana 2 (etapas 01 e 02)
+**Autor:** Mauricio Matias  **Data:** 30/10/2026  **Versão do pipeline:** Semana 4 (etapas 01 a 05)
 
 **Repositório:** https://github.com/mauriciomatias-stack/lab-etl-varejo-mercatto
 
 Escala dos dados: `ESCALA=0.2` (440.192 linhas nas quatro fontes, contando as 21 da tabela `category`).
 
-> Cada ficha traz evidência, alternativas, decisão, o que se perde, registros afetados e asserção associada. Resultado da execução: etapa `01_extracao` com 31 asserções e 0 falhas; etapa `02_transformacao` com 31 asserções e 0 falhas.
+> Cada ficha traz evidência, alternativas, decisão, o que se perde, registros afetados e asserção associada. Resultado da execução: etapa `01_extracao` com 31 asserções e 0 falhas; etapa `02_transformacao` com 31 asserções e 0 falhas; etapa `03_carga_dw` com 28 asserções e 0 falhas; etapa `04_abt` com 11 asserções e 0 falhas na versão correta (e 3 falhas na versão com vazamento, de propósito).
 > Cada ficha só conta se tiver "o que se perde" e "registros afetados".
 
 ---
@@ -356,7 +356,57 @@ Comparar o `valor_total` do e-commerce direto com `SUM(total_amount)` daria uma 
 
 **Asserção associada:** `fato_atendimento` = 19.000 e `fato_avaliacao` = 32.000 linhas (stg = carregadas + removidas); `protocolo` e `review_id` únicos; nota fora de 1 a 5 = 0; motivos distintos = 12; integridade referencial dos dois fatos (quando preenchidos) = 0 órfãos.
 
-## Tabela-resumo (fichas 01 a 13)
+## Ficha RDT-14 · Desenho dos atributos da ABT e verificação de ausência de vazamento
+
+**Evidência:**
+- Pergunta: dado o comportamento até `2025-06-30`, o cliente compra de novo entre `2025-07-01` e `2025-09-28`? Base: 22.106 clientes com pedido até o corte; 4.801 recompram (pedido não cancelado na janela), taxa 0,217. Contando todos os status a taxa seria 0,246; só entregues, 0,190.
+- Quinze atributos, todos com data de evento ≤ corte: recência, frequência, valor monetário, ticket médio, prazo médio de entrega, taxa de cancelamento, categorias distintas, canal predominante, sistemas distintos, atendimentos e nota do SAC, avaliações e nota, UF, tempo como cliente.
+- `dt_primeiro_cadastro` é posterior ao corte em 3.371 dos 22.106 clientes da base (15,25%) e posterior ao primeiro pedido em 16.410 (74%). 456 pedidos anteriores ao corte foram entregues depois dele.
+
+**Alternativas consideradas:**
+1. Tempo como cliente a partir de `dt_primeiro_cadastro`. Descartada: usa uma data que, para 74% dos clientes, vem depois do primeiro pedido, e para 15,25% vem depois do corte.
+2. Usar `origem_unificacao` e `regra_pareamento` como atributos. Descartada: dependem do cruzamento de CPF sobre a base inteira (RDT-02), logo carregam informação de depois do corte.
+3. Prazo de entrega com todas as entregas dos pedidos pré-corte. Descartada: 456 entregas ocorreram depois do corte.
+4. Alvo com todos os status (taxa 0,246). Descartada: um pedido cancelado não é recompra.
+5. **Escolhida:** tempo como cliente pelo primeiro pedido, prazo só com entregas até o corte, atributos de origem de CPF excluídos, alvo com pedidos não cancelados.
+
+**Decisão:** `abt.recompra_90d`, uma linha por cliente-base, com os quinze atributos acima, `data_corte` e o alvo `alvo_recompra_90d`. Categorias `NAO_CLASSIFICADO` e `AMBIGUO` (RDT-07) não contam em `categorias_distintas`.
+
+**Justificativa:** o único ponto do pipeline que pode olhar para o futuro é o alvo. Para provar que os atributos não olham, a etapa 04 recalcula por fora do SQL (em pandas, com o filtro de data explícito) frequência, valor monetário e recência e compara linha a linha com a ABT.
+
+**O que se perde:** o status do pedido na DW é o da extração, sem data de cancelamento. Um pedido feito antes do corte e cancelado depois entra como cancelado em `taxa_cancelamento` e fora de frequência e valor, o que injeta informação posterior ao corte. Não há como corrigir com os dados disponíveis; fica como limitação. Perdem-se também as informações de origem de CPF (alternativa 2).
+
+**Registros afetados:** 22.106 clientes na ABT (nenhum perdido na junção: clientes sem atributos = 0); 3.371 clientes com cadastro posterior ao corte e 456 pedidos com entrega posterior ao corte tratados como descrito.
+
+**Resultado e limite:** com a ABT correta (partição 70/30 estratificada, teste nos 30%), o Naive Bayes dá AUC 0,552, a Regressão Logística 0,549 e a Árvore 0,507. Isto fica abaixo da faixa que o professor indica (0,62 a 0,72). Investiguei antes de aceitar: o AUC de cada atributo isolado fica entre 0,48 e 0,54, frequência nos 90, 180 e 365 dias antes do corte dá 0,51 a 0,53, e o volume por trimestre é constante (cerca de 6.800 pedidos). Nada nos dados mostra sinal forte de recompra; não ajustei o alvo para chegar à faixa.
+
+**Asserção associada:** 11 asserções, 0 falhas na versão correta: taxa do alvo entre 0,02 e 0,60; `cliente_sk` único; linhas do alvo = linhas do SQL; cardinalidade preservada; clientes sem atributos = 0; `data_corte` único; frequência, valor monetário e recência iguais ao recálculo com filtro de data; recência negativa = 0.
+
+---
+
+## Ficha RDT-15 · Vazamentos introduzidos deliberadamente na versão de comparação
+
+**Evidência:** a tabela `abt.recompra_90d_vazamento` usa o mesmo SQL e as mesmas colunas; muda só o que está listado abaixo. Mesmos 22.106 clientes e mesmo alvo.
+
+| Vazamento | Linha de código | O que muda | Efeito medido |
+|---|---|---|---|
+| 1. `recencia_dias` | filtro de data trocado por `TRUE` | última compra pode cair na janela do alvo ou depois | 8.615 clientes com recência negativa (mínimo −183); AUC isolado 0,478 (correta) contra 0,808 (1 − 0,192 na versão com vazamento) |
+| 2. `frequencia_pedidos` | filtro de data trocado por `TRUE` | conta os pedidos da janela do alvo | 8.615 linhas diferentes da correta; média 4,29 entre quem recompra contra 2,90 entre quem não recompra (na correta, 2,86 e 2,65); AUC isolado 0,530 contra 0,712 |
+| 3. `ticket_medio` | z-score com média e desvio de todas as linhas | escala calculada antes da partição treino/teste | AUC isolado inalterado (0,503); efeito pequeno e silencioso |
+
+**Alternativas consideradas:** usar só os vazamentos 1 e 2 (os que chamam atenção) ou incluir o 3 para mostrar o vazamento que não chama atenção. **Escolhida:** os três, porque o terceiro é o que passa na revisão visual.
+
+**Decisão:** manter as duas ABTs lado a lado, rodar o mesmo fluxo Orange (Data Sampler 70/30 estratificado, três modelos, Test on test data, classe 1) e comparar.
+
+**Justificativa:** a diferença entre as duas versões cabe em uma linha de SQL. Mostrar isso, e mostrar como a asserção de recálculo pega o erro, é o objetivo do experimento (relatório em `docs/Relatorio_Vazamento`).
+
+**O que se perde:** nada na DW. A tabela com vazamento nunca deve ser usada para decidir; só para o experimento. O vazamento 3 não foi isolado em um experimento próprio, então não medi seu ganho de AUC separadamente.
+
+**Registros afetados:** 22.106 clientes; 8.615 (38,97%) com recência negativa e frequência diferente da correta.
+
+**Asserção associada:** a mesma `verifica_sem_vazamento` da RDT-14, rodada nas duas versões: 11 asserções e 0 falhas na correta; 11 asserções e 3 falhas na versão com vazamento (frequência, recência e recência negativa, 8.615 linhas). A falha é a prova de que a asserção enxerga o erro. O z-score do ticket médio não é pego por essa asserção; o que o denuncia é média 0 e desvio 1 em toda a base antes da partição.
+
+## Tabela-resumo (fichas 01 a 15)
 
 | Ficha | Decisão | Registros afetados | % da base | Informação perdida? |
 |---|---|---|---|---|
@@ -373,7 +423,13 @@ Comparar o `valor_total` do e-commerce direto com `SUM(total_amount)` daria uma 
 | RDT-11 | Grão por `(sistema, id)` e reconciliação com a mesma definição | 82.000 pedidos | 100% | Pedidos de mesmo número nunca são fundidos |
 | RDT-12 | Sem cliente-sentinela; falha se aparecer | 0 | 0% | Nada hoje |
 | RDT-13 | SAC e avaliações: cliente só pelo CPF, NULL onde não há par | 1.229 sem cliente + 7.959 sem produto | 6,47% do SAC / 24,87% das avaliações | Cliente do pedido não usado; hora e motivo livre |
+| RDT-14 | ABT com 15 atributos até o corte; alvo sem cancelados; prova por recálculo | 22.106 clientes (4.801 recompram) | 100% da base-cliente; taxa do alvo 21,7% | Status na extração, sem data de cancelamento; origem de CPF fora |
+| RDT-15 | Três vazamentos deliberados, medidos lado a lado | 8.615 clientes com recência negativa | 38,97% dos 22.106 | Nada na DW; tabela com vazamento só para o experimento |
 
 ## Reflexão final (máximo 400 palavras)
 
-*(entrega final)*
+**1. Qual decisão mudaria mais o resultado do modelo?** Entre as que testei, o vazamento: tirar o filtro de data de duas colunas levou o AUC da Árvore de 0,507 para 0,954 e o do Naive Bayes de 0,552 para 0,871. Entre as decisões de limpeza (RDT-02 a RDT-13) não testei nenhuma no modelo, então o que segue é hipótese. Cada atributo isolado tem AUC entre 0,48 e 0,54, o que sugere que nenhuma delas muda muito o resultado nestes dados. A que mais me preocupa é a regra de identidade do cliente (RDT-02): ela define quem é "o mesmo cliente", logo quem conta como recompra. Também medi que a definição do alvo muda a taxa (0,190, 0,217 ou 0,246 conforme o tratamento de cancelados e entregas).
+
+**2. Alguma decisão por conveniência técnica teria consequência sobre pessoas reais?** Sim, três. (a) O pareamento só por CPF exato (RDT-02) deixou 2.241 cadastros sem CPF sem par: em produção, a mesma pessoa seria tratada como dois clientes, um deles "novo" e outro "inativo", e poderia receber ou deixar de receber uma oferta por isso. (b) O SAC ligado só pelo CPF (RDT-13) deixa 1.229 atendimentos sem cliente; quem reclamou e não tem CPF fica invisível para qualquer modelo de risco de insatisfação. (c) O alvo trata pedido cancelado como "não recomprou" e o status vem da extração, sem data (RDT-14): um cliente que cancelou por falha da loja seria classificado como desinteressado.
+
+**3. Que informação eu queria ter tido?** A data de cada mudança de status (principalmente cancelamento), que me permitiria reconstruir o estado do pedido no dia do corte e eliminar a limitação da RDT-14. Um identificador único de pessoa, em vez de depender de CPF. Os dados de campanha e promoção, que provavelmente explicam a recompra melhor do que qualquer atributo que tive. E um alvo vindo do negócio: não sei se, para a Mercatto, recompra em 90 dias é a pergunta certa, e meus atributos fracos (AUC 0,55) sugerem que os dados disponíveis não respondem bem a ela.
